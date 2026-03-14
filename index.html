@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2D Ballers</title>
+<style>
+  :root {
+    --bg: #f9f9f7;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1a1a;
+    --muted: #6b6b68;
+    --accent: #2563eb;
+    --accent-light: #eff4ff;
+    --btn-bg: #1a1a1a;
+    --btn-text: #ffffff;
+  }
+  [data-theme="dark"] {
+    --bg: #111110;
+    --surface: #1c1c1a;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0efe8;
+    --muted: #8a8a85;
+    --accent: #4a8aff;
+    --accent-light: #1a2540;
+    --btn-bg: #f0efe8;
+    --btn-text: #111110;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .nav-logo {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .nav-logo span { color: var(--accent); }
+  .theme-toggle {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 15px;
+    transition: background 0.15s;
+  }
+  .theme-toggle:hover { background: var(--accent-light); }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 80px 2rem 60px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    letter-spacing: 0.2px;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  h1 {
+    font-size: clamp(36px, 7vw, 56px);
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  h1 span { color: var(--accent); }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 36px;
+    max-width: 420px;
+  }
+  .play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 13px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    text-decoration: none;
+  }
+  .play-btn:hover { opacity: 0.85; }
+  .play-btn:active { transform: scale(0.98); }
+  .play-icon {
+    width: 20px; height: 20px;
+    background: var(--btn-text);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.2;
+  }
+
+  .game-frame {
+    max-width: 900px;
+    margin: 0 auto 80px;
+    padding: 0 2rem;
+  }
+  .frame-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+  .frame-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .d1 { background: #ff5f57; }
+  .d2 { background: #febc2e; }
+  .d3 { background: #28c840; }
+  .frame-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: -34px;
+  }
+  .artifact-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: #0a0a0a;
+  }
+  .artifact-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .court {
+    width: 120px; height: 70px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .court::before {
+    content: '';
+    width: 40px; height: 40px;
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    position: absolute;
+  }
+  .hoop-l, .hoop-r {
+    position: absolute;
+    width: 12px; height: 8px;
+    border: 2px solid rgba(74,138,255,0.6);
+    border-radius: 2px;
+  }
+  .hoop-l { left: -2px; }
+  .hoop-r { right: -2px; }
+  .ball {
+    width: 14px; height: 14px;
+    background: #e87c3e;
+    border-radius: 50%;
+    position: absolute;
+    top: 15px; left: 55px;
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+  }
+  .placeholder-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.3px;
+  }
+  .load-btn {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(74,138,255,0.4);
+    background: rgba(74,138,255,0.08);
+    color: #4a8aff;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .load-btn:hover { background: rgba(74,138,255,0.15); }
+
+  .info-row {
+    max-width: 900px;
+    margin: 0 auto 80px;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .info-card-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .info-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .info-card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">2D <span>Ballers</span></div>
+  <button class="theme-toggle" id="toggle" title="Toggle theme">☀</button>
+</nav>
+
+<section class="hero">
+  <div class="badge"><div class="badge-dot"></div>Now live</div>
+  <h1>Play <span>2D Ballers</span></h1>
+  <p class="hero-sub">A fast-paced 2D basketball experience. Pick up and play — no downloads, no installs.</p>
+  <a class="play-btn" href="#game">
+    <div class="play-icon">▶</div>
+    Play now
+  </a>
+</section>
+
+<div class="game-frame" id="game">
+  <div class="frame-label">Game</div>
+  <div class="frame-wrapper">
+    <div class="frame-bar">
+      <div class="dot d1"></div>
+      <div class="dot d2"></div>
+      <div class="dot d3"></div>
+      <div class="frame-title">2D Ballers</div>
+    </div>
+    <div class="artifact-container">
+      <div class="artifact-placeholder" id="placeholder">
+        <div class="court">
+          <div class="hoop-l"></div>
+          <div class="hoop-r"></div>
+          <div class="ball"></div>
+        </div>
+        <div class="placeholder-text">Your game artifact loads here</div>
+        <button class="load-btn">Load game</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="info-row">
+  <div class="info-card">
+    <div class="info-card-icon">🏀</div>
+    <div class="info-card-title">2D gameplay</div>
+    <div class="info-card-desc">Classic side-scrolling basketball action.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">⚡</div>
+    <div class="info-card-title">Instant play</div>
+    <div class="info-card-desc">Runs entirely in your browser — no installs needed.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">🎮</div>
+    <div class="info-card-title">Keyboard controls</div>
+    <div class="info-card-desc">Simple controls, easy to pick up and play.</div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-icon">🏆</div>
+    <div class="info-card-title">Score to win</div>
+    <div class="info-card-desc">Outscore your opponent to take the crown.</div>
+  </div>
+</div>
+
+<footer>2D Ballers &mdash; Built with Claude</footer>
+
+<script>
+  const toggle = document.getElementById('toggle');
+  const root = document.documentElement;
+  let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  function applyTheme() {
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    toggle.textContent = dark ? '☀' : '☾';
+  }
+  applyTheme();
+
+  toggle.addEventListener('click', () => { dark = !dark; applyTheme(); });
+</script>
+</body>
+</html>
