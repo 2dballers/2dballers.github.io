@@ -30,6 +30,14 @@
     --btn-text: #111110;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+.center-grid {
+    display: grid;
+    place-items: center; /* Centers both horizontally and vertically */
+    height: 100vh;       /* Sets the container height to the full viewport height */
+    width: 100%;
+}
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
@@ -303,9 +311,9 @@
     Play now
   </a>
 </section>
-
+<div class="center-grid">
 <iframe src="https://claude.site/public/artifacts/d04d792e-e467-4c37-8e82-d06ce038130f/embed" title="Claude Artifact" width="800" height="600" frameborder="0" allow="clipboard-write" allowfullscreen></iframe>
-
+</div>
 <div class="info-row">
   <div class="info-card">
     <div class="info-card-icon">🏀</div>
